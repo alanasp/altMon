@@ -1,0 +1,17 @@
+# ignore PyCharm files
+.idea/
+__*/
+
+# ignore log files
+*.log
+
+# ignore data directories
+data_*/
+
+# ignore results directory
+results/
+saved_exp_data/
+
+# ignore config folder
+config
+
