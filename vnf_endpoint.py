@@ -18,8 +18,7 @@ def update_config(current_config, update_msgs):
     for key in update_msgs:
         partition = update_msgs[key]
         for record in partition:
-            msg = json.loads(record.value)
-            print(msg)
+            msg = record.value
             if msg['vnf_name'] == current_config['vnf_name']:
                 current_config['metrics'].update(msg['metrics'])
                 return
@@ -29,14 +28,15 @@ def update_config(current_config, update_msgs):
 with open('vnf_endpoint.config', 'r') as config_file:
     config = json.load(config_file)
 
-admin_consumer = KafkaConsumer(config['admin_topic'], bootstrap_servers=config['bootstrap_servers'])
+admin_consumer = KafkaConsumer(config['admin_topic'], bootstrap_servers=config['bootstrap_servers'],
+                               value_deserializer=lambda m: json.loads(m.decode('ascii')))
 
-data_producer = KafkaProducer(bootstrap_servers=config['bootstrap_servers'])
+data_producer = KafkaProducer(bootstrap_servers=config['bootstrap_servers'],
+                              value_serializer=lambda m: json.dumps(m).encode('ascii'))
 
 last_mon_times = dict()
 
 now = datetime.datetime.utcnow()
-print(now)
 for metric in config['metrics']:
     last_mon_times[metric] = now
 
@@ -49,6 +49,6 @@ while True:
         if delta >= config['metrics'][metric]['frequency']:
             value = metric_functions[metric]()
             msg = {'timestamp': now.isoformat(), 'vnf_name': config['vnf_name'], 'metric': metric, 'value': value}
-            data_producer.send(config['data_topic'], json.dumps(msg))
+            data_producer.send(config['data_topic'], msg)
             last_mon_times[metric] = now
     time.sleep(0.5)
