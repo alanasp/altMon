@@ -28,7 +28,8 @@ def get_decision_msgs(dec_engines):
             if decision is not None:
                 metric_decisions[metric] = dict()
                 metric_decisions[metric]['frequency'] = decision
-        decision_msgs.append({'vnf_name': vnf, 'metrics': metric_decisions})
+        if len(metric_decisions) > 0:
+            decision_msgs.append({'vnf_name': vnf, 'metrics': metric_decisions})
     return decision_msgs
 
 
@@ -45,10 +46,10 @@ data_consumer = KafkaConsumer(config['data_topic'], bootstrap_servers=config['bo
 decision_engines = dict()
 # create decision engines for all metrics in all VNFs
 for vnf in config['VNFs']:
+    decision_engines[vnf] = dict()
     for metric in config['VNFs'][vnf]['metrics']:
         name = vnf + '_' + metric
         mon_frequency = config['VNFs'][vnf]['metrics'][metric]['frequency']
-        decision_engines[vnf] = dict()
         decision_engines[vnf][metric] = DecisionEngine(name, mon_frequency)
 
 while True:
