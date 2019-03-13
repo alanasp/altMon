@@ -24,7 +24,7 @@ def get_decision_msgs(dec_engines):
     for vnf in dec_engines:
         metric_decisions = dict()
         for metric in dec_engines[vnf]:
-            decision = dec_engines[vnf][metric]
+            decision = dec_engines[vnf][metric].get_decision()
             if decision is not None:
                 metric_decisions[metric] = dict()
                 metric_decisions[metric]['frequency'] = decision
