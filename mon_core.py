@@ -48,6 +48,7 @@ for vnf in config['VNFs']:
     for metric in config['VNFs'][vnf]['metrics']:
         name = vnf + '_' + metric
         mon_frequency = config['VNFs'][vnf]['metrics'][metric]['frequency']
+        decision_engines[vnf] = dict()
         decision_engines[vnf][metric] = DecisionEngine(name, mon_frequency)
 
 while True:
