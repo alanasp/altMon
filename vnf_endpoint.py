@@ -21,6 +21,8 @@ def update_config(current_config, update_msgs):
             msg = record.value
             if msg['vnf_name'] == current_config['vnf_name']:
                 current_config['metrics'].update(msg['metrics'])
+                with open('vnf_endpoint.config', 'w') as config_file:
+                    json.dump(current_config, config_file, sort_keys=True)
                 return
 
 
@@ -32,7 +34,7 @@ admin_consumer = KafkaConsumer(config['admin_topic'], bootstrap_servers=config['
                                value_deserializer=lambda m: json.loads(m.decode('ascii')))
 
 data_producer = KafkaProducer(bootstrap_servers=config['bootstrap_servers'],
-                              value_serializer=lambda m: json.dumps(m).encode('ascii'))
+                              value_serializer=lambda m: json.dumps(m, sort_keys=True).encode('ascii'))
 
 last_mon_times = dict()
 
