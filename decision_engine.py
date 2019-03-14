@@ -78,6 +78,7 @@ class DecisionEngine:
         # pick largest period which doesn't cross thresholds with 'confidence' probability
         for period in reversed(self.mon_periods):
             rnd_walk_std = np.sqrt(change_var*period)
+            rnd_walk_std = max(0.01*period, rnd_walk_std)
             change_interval = norm.interval(self.confidence, loc=change_mean, scale=rnd_walk_std)
             if curr_val + change_interval[0] > self.ok_interval[0] and \
                curr_val + change_interval[1] < self.ok_interval[1]:
@@ -86,17 +87,19 @@ class DecisionEngine:
                     return None
                 self.curr_period = period
                 return period
+        if self.curr_period == self.mon_periods[0]:
+            return None
         return self.mon_periods[0]
 
 
 #de = DecisionEngine('aaa', 10, 0, 100, 0.9)
 #for i in range(50):
 #    val = np.random.normal(80+i/10, 5)
-#    de.feed_data(val)
+#    de.feed_data(50)
 
 #for i in range(900):
 #    val = np.random.normal(85 - i / 10, 5)
-#    de.feed_data(val)
+#    de.feed_data(50)
 #    d = de.get_decision()
 #    if d is None:
 #        print('None')

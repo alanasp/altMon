@@ -19,15 +19,18 @@ def feed_measures(dec_engines, measure_msgs):
             dec_engines[vnf][metric].feed_data(value, timestamp)
 
 
-def get_decision_msgs(dec_engines):
+def get_decision_msgs(dec_engines, config_dict, init=False):
     decision_msgs = list()
     for vnf in dec_engines:
         metric_decisions = dict()
-        for metric in dec_engines[vnf]:
-            decision = dec_engines[vnf][metric].get_decision()
-            if decision is not None:
-                metric_decisions[metric] = dict()
-                metric_decisions[metric]['mon_period'] = decision
+        if init:
+            metric_decisions = config_dict['VNFs'][vnf]['metrics']
+        else:
+            for metric in dec_engines[vnf]:
+                decision = dec_engines[vnf][metric].get_decision()
+                if decision is not None:
+                    metric_decisions[metric] = dict()
+                    metric_decisions[metric]['mon_period'] = decision
         if len(metric_decisions) > 0:
             decision_msgs.append({'vnf_name': vnf, 'metrics': metric_decisions})
     return decision_msgs
@@ -58,10 +61,15 @@ for vnf in config['VNFs']:
             upper_threshold = config['VNFs'][vnf]['metrics'][metric]['upper_threshold']
         decision_engines[vnf][metric] = DecisionEngine(name, mon_period, lower_threshold, upper_threshold)
 
+# send initial monitoring periods
+init_admin_msgs = get_decision_msgs(decision_engines, config, init=True)
+for msg in init_admin_msgs:
+    admin_producer.send(config['admin_topic'], msg)
+
 while True:
     measures = data_consumer.poll()
     feed_measures(decision_engines, measures)
-    admin_msgs = get_decision_msgs(decision_engines)
+    admin_msgs = get_decision_msgs(decision_engines, config)
     for msg in admin_msgs:
         admin_producer.send(config['admin_topic'], msg)
     time.sleep(0.5)
