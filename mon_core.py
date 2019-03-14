@@ -50,7 +50,13 @@ for vnf in config['VNFs']:
     for metric in config['VNFs'][vnf]['metrics']:
         name = vnf + '_' + metric
         mon_period = config['VNFs'][vnf]['metrics'][metric]['mon_period']
-        decision_engines[vnf][metric] = DecisionEngine(name, mon_period)
+        lower_threshold = None
+        if 'lower_threshold' in config['VNFs'][vnf]['metrics'][metric]:
+            lower_threshold = config['VNFs'][vnf]['metrics'][metric]['lower_threshold']
+        upper_threshold = None
+        if 'upper_threshold' in config['VNFs'][vnf]['metrics'][metric]:
+            upper_threshold = config['VNFs'][vnf]['metrics'][metric]['upper_threshold']
+        decision_engines[vnf][metric] = DecisionEngine(name, mon_period, lower_threshold, upper_threshold)
 
 while True:
     measures = data_consumer.poll()
