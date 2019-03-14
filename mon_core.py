@@ -27,7 +27,7 @@ def get_decision_msgs(dec_engines):
             decision = dec_engines[vnf][metric].get_decision()
             if decision is not None:
                 metric_decisions[metric] = dict()
-                metric_decisions[metric]['frequency'] = decision
+                metric_decisions[metric]['mon_period'] = decision
         if len(metric_decisions) > 0:
             decision_msgs.append({'vnf_name': vnf, 'metrics': metric_decisions})
     return decision_msgs
@@ -49,8 +49,8 @@ for vnf in config['VNFs']:
     decision_engines[vnf] = dict()
     for metric in config['VNFs'][vnf]['metrics']:
         name = vnf + '_' + metric
-        mon_frequency = config['VNFs'][vnf]['metrics'][metric]['frequency']
-        decision_engines[vnf][metric] = DecisionEngine(name, mon_frequency)
+        mon_period = config['VNFs'][vnf]['metrics'][metric]['mon_period']
+        decision_engines[vnf][metric] = DecisionEngine(name, mon_period)
 
 while True:
     measures = data_consumer.poll()

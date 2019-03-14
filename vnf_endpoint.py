@@ -48,7 +48,7 @@ while True:
     for metric in last_mon_times:
         now = datetime.datetime.utcnow()
         delta = (now - last_mon_times[metric]).seconds
-        if delta >= config['metrics'][metric]['frequency']:
+        if delta >= config['metrics'][metric]['mon_period']:
             value = metric_functions[metric]()
             msg = {'timestamp': now.isoformat(), 'vnf_name': config['vnf_name'], 'metric': metric, 'value': value}
             data_producer.send(config['data_topic'], msg)
