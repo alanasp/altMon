@@ -32,7 +32,6 @@ class SlidingWindow:
         return None
 
 
-# dummy implementation
 class DecisionEngine:
     # units in seconds
     mon_periods = [2, 5, 10, 20, 50]
