@@ -36,15 +36,22 @@ def get_decision_msgs(dec_engines, config_dict, init=False):
     return decision_msgs
 
 
+print('Loading configurations...')
 # load configurations
 with open('mon_core.config', 'r') as config_file:
     config = json.load(config_file)
+
+print('Configurations loaded!')
+
+print('Connecting to Kafka cluster...')
 
 admin_producer = KafkaProducer(bootstrap_servers=config['bootstrap_servers'],
                                value_serializer=lambda m: json.dumps(m, sort_keys=True).encode('ascii'))
 
 data_consumer = KafkaConsumer(config['data_topic'], bootstrap_servers=config['bootstrap_servers'],
                               value_deserializer=lambda m: json.loads(m.decode('ascii')))
+
+print('Connected to Kafka cluster')
 
 decision_engines = dict()
 # create decision engines for all metrics in all VNFs
