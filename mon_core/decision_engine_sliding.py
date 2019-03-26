@@ -88,6 +88,7 @@ class DecisionEngine:
                 return period
         if self.curr_period == self.mon_periods[0]:
             return None
+        self.curr_period = self.mon_periods[0]
         return self.mon_periods[0]
 
 

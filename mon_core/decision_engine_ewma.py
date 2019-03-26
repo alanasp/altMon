@@ -72,7 +72,7 @@ class DecisionEngine:
         # pick largest period which doesn't cross thresholds with 'confidence' probability
         for period in reversed(self.mon_periods):
             mean = self.latest_val
-            std = np.sqrt(self.ewmv*(1+self.weight*(period-1)))
+            std = max(0.01, np.sqrt(self.ewmv*(1+self.weight*(period-1))))
             interval = norm.interval(self.confidence, loc=mean, scale=std)
             #print(mean, std, interval)
             if interval[0] > self.ok_interval[0] and \
@@ -84,6 +84,7 @@ class DecisionEngine:
                 return period
         if self.curr_period == self.mon_periods[0]:
             return None
+        self.curr_period = self.mon_periods[0]
         return self.mon_periods[0]
 
 
