@@ -17,5 +17,5 @@ EXPOSE 80
 ENV NAME World
 
 # Run app.py when the container launches
-CMD ["python3", "mon_consumer.py"]
+CMD ["python3", "-u" , "mon_consumer.py"]
 
