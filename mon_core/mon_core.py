@@ -66,7 +66,7 @@ print('Connecting to external Kafka cluster at {}...'.format(config['kafka_ext']
 admin_producer = KafkaProducer(bootstrap_servers=config['kafka_ext'],
                                value_serializer=lambda m: json.dumps(m, sort_keys=True).encode('ascii'))
 
-data_consumer = KafkaConsumer(config['data_topic'], bootstrap_servers=config['kafka_ext'],
+data_consumer = KafkaConsumer(config['ext_data_topic'], bootstrap_servers=config['kafka_ext'],
                               value_deserializer=lambda m: json.loads(m.decode('ascii')))
 
 print('Connected to external Kafka cluster')
@@ -99,7 +99,7 @@ for vnf in config['VNFs']:
 init_admin_msgs = get_decision_msgs(DEs, config, init=True)
 for msg in init_admin_msgs:
     print('Sending message: {}'.format(msg))
-    admin_producer.send(config['admin_topic'], msg)
+    admin_producer.send(config['ext_admin_topic'], msg)
 
 export_mon_data = False
 
@@ -116,5 +116,5 @@ while True:
         print('Sending message: {}'.format(msg))
         if export_mon_data:
             osm_producer.send(config['osm_mon_export_topic'], msg)
-        admin_producer.send(config['admin_topic'], msg)
+        admin_producer.send(config['ext_admin_topic'], msg)
     time.sleep(0.5)
