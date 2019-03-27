@@ -11,6 +11,7 @@ metric_functions = {
     'RAM': lambda: psutil.virtual_memory()[2]
 }
 
+first_admin_received = False
 
 # admin messages expected in JSON format
 # pick most recent message addressed to this VNF and update the respective configurations
@@ -18,6 +19,7 @@ def update_config(current_config, update_msgs):
     for key in update_msgs:
         partition = update_msgs[key]
         for record in partition:
+            first_admin_received = True
             msg = record.value
             if msg['vnf_name'] == current_config['vnf_name']:
                 current_config['metrics'].update(msg['metrics'])
@@ -45,6 +47,10 @@ for metric in config['metrics']:
 while True:
     admin_msgs = admin_consumer.poll()
     update_config(config, admin_msgs)
+    if first_admin_received:
+        with open('actual_CPU', 'a+') as cpu_file:
+            cpu_file.write(str(metric_functions['CPU']()))
+
     for metric in last_mon_times:
         now = datetime.datetime.utcnow()
         delta = (now - last_mon_times[metric]).seconds
@@ -53,4 +59,4 @@ while True:
             msg = {'timestamp': now.isoformat(), 'vnf_name': config['vnf_name'], 'metric': metric, 'value': value}
             data_producer.send(config['ext_data_topic'], msg)
             last_mon_times[metric] = now
-    time.sleep(0.5)
+    time.sleep(1)
