@@ -50,6 +50,13 @@ class DecisionEngine:
         self.ok_interval = (lower_threshold, upper_threshold)
         self.confidence = confidence
 
+    # function used for exporting current PIs
+    def get_PI(self):
+        mean = self.latest_val
+        std = max(0.01, np.sqrt(self.ewmv * (1 + self.weight * (self.curr_period - 1))))
+        interval = norm.interval(self.confidence, loc=mean, scale=std)
+        return interval
+
     def feed_data(self, value, timestamp=None):
         # assume value stayed the same throughout the period
         if self.points_observed == 0:

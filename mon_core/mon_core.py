@@ -13,13 +13,17 @@ def feed_measures(dec_engines, measure_msgs, export, export_producer, export_top
         for record in partition:
             msg = record.value
             print('Message received: {}'.format(msg))
-            if export:
-                export_producer.send(export_topic, msg)
             vnf = msg['vnf_name']
             metric = msg['metric']
             value = msg['value']
             timestamp = msg['timestamp']
             dec_engines.feed_data(vnf, metric, value, timestamp)
+            if export:
+                exp_msg = dict(msg)
+                exp_msg['mon_period'] = dec_engines.decision_engines[vnf][metric].curr_period
+                exp_msg['ewmv'] = dec_engines.decision_engines[vnf][metric].ewmv
+                exp_msg['prediction_interval'] = dec_engines.decision_engines[vnf][metric].get_PI()
+                export_producer.send(export_topic, exp_msg)
 
 
 def get_decision_msgs(dec_engines, config_dict, init=False):
