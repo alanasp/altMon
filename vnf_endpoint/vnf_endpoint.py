@@ -21,6 +21,7 @@ def update_config(current_config, update_msgs):
         for record in partition:
             first_admin_received = True
             msg = record.value
+            print('Message received: {}'.format(msg))
             if msg['vnf_name'] == current_config['vnf_name']:
                 current_config['metrics'].update(msg['metrics'])
                 with open('vnf_endpoint.config', 'w') as config_file:
@@ -28,15 +29,23 @@ def update_config(current_config, update_msgs):
                 return
 
 
+print('Loading configurations...')
+
 # load configurations
 with open('vnf_endpoint.config', 'r') as config_file:
     config = json.load(config_file)
+
+print('Configurations loaded!')
+
+print('Connecting to external Kafka cluster at {}...'.format(config['kafka_ext']))
 
 admin_consumer = KafkaConsumer(config['ext_admin_topic'], bootstrap_servers=config['kafka_ext'],
                                value_deserializer=lambda m: json.loads(m.decode('ascii')))
 
 data_producer = KafkaProducer(bootstrap_servers=config['kafka_ext'],
                               value_serializer=lambda m: json.dumps(m, sort_keys=True).encode('ascii'))
+
+print('Connected to external Kafka cluster')
 
 last_mon_times = dict()
 
@@ -57,6 +66,7 @@ while True:
         if delta >= config['metrics'][metric]['mon_period']:
             value = metric_functions[metric]()
             msg = {'timestamp': now.isoformat(), 'vnf_name': config['vnf_name'], 'metric': metric, 'value': value}
+            print('Sending message: {}'.format(msg))
             data_producer.send(config['ext_data_topic'], msg)
             last_mon_times[metric] = now
     time.sleep(1)
