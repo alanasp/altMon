@@ -1,5 +1,4 @@
 from kafka import KafkaConsumer, KafkaProducer
-import psutil
 import datetime
 import time
 import json
@@ -11,12 +10,13 @@ def save_measures(measure_msgs):
         for record in partition:
             msg = record.value
             print('Message received: {}'.format(msg))
-            vnf = msg['vnf_name']
-            metric = msg['metric']
-            value = msg['value']
-            timestamp = msg['timestamp']
-            with open('{}_{}'.format(vnf, metric), 'a+') as results_file:
-                results_file.write(value)
+            if 'value' in msg:
+                vnf = msg['vnf_name']
+                metric = msg['metric']
+                value = msg['value']
+                timestamp = msg['timestamp']
+                with open('{}_{}'.format(vnf, metric), 'a+') as results_file:
+                    results_file.write(str(value))
 
 
 print('Loading configurations...')
@@ -29,7 +29,7 @@ print('Configurations loaded!')
 print('Connecting to OSM Kafka cluster at {}...'.format(config['kafka_osm']))
 
 config_producer = KafkaProducer(bootstrap_servers=config['kafka_osm'],
-                                value_deserializer=lambda m: json.loads(m.decode('ascii')))
+                                value_serializer=lambda m: json.dumps(m, sort_keys=True).encode('ascii'))
 
 data_consumer = KafkaConsumer(config['osm_mon_export_topic'], bootstrap_servers=config['kafka_osm'],
                               value_deserializer=lambda m: json.loads(m.decode('ascii')))
