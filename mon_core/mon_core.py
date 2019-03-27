@@ -6,6 +6,8 @@ import json
 
 from decision_engine_ewma import DecisionEngines
 
+export_to_file = True
+
 
 def feed_measures(dec_engines, measure_msgs, export, export_producer, export_topic):
     for key in measure_msgs:
@@ -20,9 +22,13 @@ def feed_measures(dec_engines, measure_msgs, export, export_producer, export_top
             dec_engines.feed_data(vnf, metric, value, timestamp)
             if export:
                 exp_msg = dict(msg)
-                exp_msg['mon_period'] = dec_engines.decision_engines[vnf][metric].curr_period
-                exp_msg['ewmv'] = dec_engines.decision_engines[vnf][metric].ewmv
-                exp_msg['prediction_interval'] = dec_engines.decision_engines[vnf][metric].get_PI()
+                T = exp_msg['mon_period'] = dec_engines.decision_engines[vnf][metric].curr_period
+                ewmv = exp_msg['ewmv'] = dec_engines.decision_engines[vnf][metric].ewmv
+                PI = exp_msg['prediction_interval'] = dec_engines.decision_engines[vnf][metric].get_PI()
+                if export_to_file:
+                    with open('{}_{}'.format(vnf, metric), 'w+') as results_file:
+                        results_file.write(str(value) + ' ' + str(T) + ' ' + ewmv + ' ' +
+                                           str(PI[0]) + ' ' + str(PI[1]) + '\n')
                 export_producer.send(export_topic, exp_msg)
 
 
