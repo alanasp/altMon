@@ -32,7 +32,7 @@ def update_config(current_config, update_msgs):
 with open('vnf_endpoint.config', 'r') as config_file:
     config = json.load(config_file)
 
-admin_consumer = KafkaConsumer(config['ext_admin_topic'], bootstrap_servers=config['bootstrap_servers'],
+admin_consumer = KafkaConsumer(config['ext_admin_topic'], bootstrap_servers=config['kafka_ext'],
                                value_deserializer=lambda m: json.loads(m.decode('ascii')))
 
 data_producer = KafkaProducer(bootstrap_servers=config['kafka_ext'],
