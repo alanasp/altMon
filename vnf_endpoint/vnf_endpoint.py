@@ -30,10 +30,10 @@ def update_config(current_config, update_msgs):
 with open('vnf_endpoint.config', 'r') as config_file:
     config = json.load(config_file)
 
-admin_consumer = KafkaConsumer(config['admin_topic'], bootstrap_servers=config['bootstrap_servers'],
+admin_consumer = KafkaConsumer(config['ext_admin_topic'], bootstrap_servers=config['bootstrap_servers'],
                                value_deserializer=lambda m: json.loads(m.decode('ascii')))
 
-data_producer = KafkaProducer(bootstrap_servers=config['bootstrap_servers'],
+data_producer = KafkaProducer(bootstrap_servers=config['kafka_ext'],
                               value_serializer=lambda m: json.dumps(m, sort_keys=True).encode('ascii'))
 
 last_mon_times = dict()
@@ -51,6 +51,6 @@ while True:
         if delta >= config['metrics'][metric]['mon_period']:
             value = metric_functions[metric]()
             msg = {'timestamp': now.isoformat(), 'vnf_name': config['vnf_name'], 'metric': metric, 'value': value}
-            data_producer.send(config['data_topic'], msg)
+            data_producer.send(config['ext_data_topic'], msg)
             last_mon_times[metric] = now
     time.sleep(0.5)

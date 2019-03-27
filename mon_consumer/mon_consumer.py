@@ -26,13 +26,22 @@ with open('mon_consumer.config', 'r') as config_file:
 
 print('Configurations loaded!')
 
-print('Connecting to Kafka cluster...')
+print('Connecting to OSM Kafka cluster at {}...'.format(config['kafka_osm']))
 
+config_producer = KafkaProducer(bootstrap_servers=config['kafka_osm'],
+                                value_deserializer=lambda m: json.loads(m.decode('ascii')))
 
-data_consumer = KafkaConsumer(config['data_topic'], bootstrap_servers=config['bootstrap_servers'],
+data_consumer = KafkaConsumer(config['osm_mon_export_topic'], bootstrap_servers=config['kafka_osm'],
                               value_deserializer=lambda m: json.loads(m.decode('ascii')))
 
 print('Connected to Kafka cluster')
+
+export_kind = ''
+allowed_kinds = config['allowed_export_kinds']
+while export_kind not in allowed_kinds:
+    export_kind = input('Enter export kind (one of {}): '.format(allowed_kinds))
+
+config_producer.send(config['osm_mon_config_topic'], {'export_kind': export_kind})
 
 while True:
     measures = data_consumer.poll()
