@@ -18,7 +18,7 @@ def save_measures(measure_msgs):
                 PI = msg['prediction_interval']
                 timestamp = msg['timestamp']
                 with open('{}_{}'.format(vnf, metric), 'a+') as results_file:
-                    results_file.write(str(value) + ' ' + str(mon_period) + ' ' + str(PI[0]) + ' ' + str(PI[1]))
+                    results_file.write(str(value) + ' ' + str(mon_period) + ' ' + str(PI[0]) + ' ' + str(PI[1]) + '\n')
 
 
 print('Loading configurations...')

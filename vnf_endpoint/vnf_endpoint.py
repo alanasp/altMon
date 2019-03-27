@@ -58,7 +58,7 @@ while True:
     update_config(config, admin_msgs)
     if first_admin_received:
         with open('actual_CPU', 'a+') as cpu_file:
-            cpu_file.write(str(metric_functions['CPU']()))
+            cpu_file.write(str(metric_functions['CPU']()) + '\n')
 
     for metric in last_mon_times:
         now = datetime.datetime.utcnow()
