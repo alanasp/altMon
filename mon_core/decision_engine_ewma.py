@@ -25,7 +25,7 @@ class DecisionEngine:
     # units in seconds
     mon_periods = [2, 5, 10, 20, 50]
 
-    weight = 0.01
+    weight = 0.03
 
     # thresholds indicate danger levels which we don't want to miss
     # user has to specify at least one of the thresholds
