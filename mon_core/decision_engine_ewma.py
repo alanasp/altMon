@@ -75,9 +75,13 @@ class DecisionEngine:
         # keep default period until we collect more data points
         if self.points_observed < 10:
             return None
+        #can at most increase monitoring period to the next one in the list
+        curr_index = self.mon_periods.index(self.curr_period)
+        max_index = min(curr_index, len(self.mon_periods)-1)
 
         # pick largest period which doesn't cross thresholds with 'confidence' probability
-        for period in reversed(self.mon_periods):
+        for i in reversed(range(max_index+1)):
+            period = self.mon_periods[i]
             mean = self.latest_val
             std = max(0.01, np.sqrt(self.ewmv*(1+self.weight*(period-1))))
             interval = norm.interval(self.confidence, loc=mean, scale=std)
@@ -94,20 +98,3 @@ class DecisionEngine:
         self.curr_period = self.mon_periods[0]
         return self.mon_periods[0]
 
-
-#de = DecisionEngine('aaa', 10, 0, 100, 0.9)
-#for i in range(50):
-#    val = np.random.normal(80+i/10, 5)
-#    de.feed_data(50)
-#    #print('EWMA: {}'.format(de.ewma))
-#    #print('EWMV: {}'.format(de.ewmv))
-
-#for i in range(900):
-#    print('EWMV: {}'.format(de.ewmv))
-#    val = np.random.normal(85 - i / 10, 5)
-#    de.feed_data(val)
-#    d = de.get_decision()
-#    if d is None:
-#        print('None')
-#    else:
-#        print(d)
