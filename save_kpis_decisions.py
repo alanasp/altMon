@@ -21,7 +21,8 @@ mon_cpu_file = open('mon_cpu', 'w')
 
 bytes_prev = metric_functions['Net']()
 time.sleep(1)
-seconds_elapsed = 0
+seconds_elapsed = 0.0
+start_time = time.time()
 
 cpu_de = DecisionEngine('CPU_DE', mon_periods['CPU'], upper_threshold=60)
 
@@ -33,6 +34,8 @@ while True:
     ram = metric_functions['RAM']()
     net = bytes_curr - bytes_prev
 
+    seconds_elapsed = int(time.time() - start_time)
+
     if seconds_elapsed - last_mon_times['CPU'] >= mon_periods['CPU']:
         last_mon_times['CPU'] = seconds_elapsed
         cpu_de.feed_data(cpu)
@@ -40,14 +43,13 @@ while True:
         if decision is not None:
             mon_periods['CPU'] = decision
         PI = cpu_de.get_PI()
-        mon_cpu_file.write('{} {} {} {} {}\n'.format(seconds_elapsed, cpu, cpu_de.ewmv, PI[0], PI[1]))
+        mon_cpu_file.write('{} {} {} {} {}\n'.format(int(seconds_elapsed), cpu, cpu_de.ewmv, PI[0], PI[1]))
         mon_cpu_file.flush()
 
     bytes_prev = bytes_curr
 
     print(cpu, ram, net)
-    actual_cpu_file.write('{} {}\n'.format(seconds_elapsed, cpu))
+    actual_cpu_file.write('{} {}\n'.format(int(seconds_elapsed), cpu))
     actual_cpu_file.flush()
 
-    seconds_elapsed += 1
     time.sleep(1)
