@@ -77,7 +77,7 @@ class DecisionEngine:
             return None
         #can at most increase monitoring period to the next one in the list
         curr_index = self.mon_periods.index(self.curr_period)
-        max_index = min(curr_index, len(self.mon_periods)-1)
+        max_index = min(curr_index+1, len(self.mon_periods)-1)
 
         # pick largest period which doesn't cross thresholds with 'confidence' probability
         for i in reversed(range(max_index+1)):
