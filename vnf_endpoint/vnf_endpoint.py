@@ -4,8 +4,9 @@ import datetime
 import time
 import json
 
+import metrics
+
 # Globals
-prev_net_usage = psutil.net_io_counters().bytes_sent + psutil.net_io_counters().bytes_recv
 first_admin_received = False
 
 # functions called to get current values of metrics
@@ -13,7 +14,7 @@ first_admin_received = False
 metric_functions = {
     'CPU': lambda: psutil.cpu_percent(),
     'RAM': lambda: psutil.virtual_memory()[2],
-    'Net': lambda: psutil.net_io_counters().bytes_sent + psutil.net_io_counters().bytes_recv - prev_net_usage
+    'Net': lambda: metrics.get_net()
 }
 
 # admin messages expected in JSON format
@@ -55,6 +56,8 @@ last_mon_times = dict()
 now = datetime.datetime.utcnow()
 for metric in config['metrics']:
     last_mon_times[metric] = now
+    # first run for initialization
+    metric_functions[metric]()
 
 while True:
     admin_msgs = admin_consumer.poll()
