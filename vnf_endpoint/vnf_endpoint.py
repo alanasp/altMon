@@ -4,14 +4,17 @@ import datetime
 import time
 import json
 
+# Globals
+prev_net_usage = psutil.net_io_counters().bytes_sent + psutil.net_io_counters().bytes_recv
+first_admin_received = False
+
 # functions called to get current values of metrics
 # should be filled with all values in available in config
 metric_functions = {
     'CPU': lambda: psutil.cpu_percent(),
-    'RAM': lambda: psutil.virtual_memory()[2]
+    'RAM': lambda: psutil.virtual_memory()[2],
+    'Net': lambda: psutil.net_io_counters().bytes_sent + psutil.net_io_counters().bytes_recv - prev_net_usage
 }
-
-first_admin_received = False
 
 # admin messages expected in JSON format
 # pick most recent message addressed to this VNF and update the respective configurations
@@ -56,9 +59,6 @@ for metric in config['metrics']:
 while True:
     admin_msgs = admin_consumer.poll()
     update_config(config, admin_msgs)
-    if first_admin_received:
-        with open('actual_CPU', 'a+') as cpu_file:
-            cpu_file.write(str(metric_functions['CPU']()) + '\n')
 
     for metric in last_mon_times:
         now = datetime.datetime.utcnow()
