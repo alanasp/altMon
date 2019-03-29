@@ -72,4 +72,4 @@ while True:
             print('Sending message: {}'.format(msg))
             data_producer.send(config['ext_data_topic'], msg)
             last_mon_times[metric] = now
-    time.sleep(1)
+    time.sleep(0.1)
