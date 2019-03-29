@@ -28,7 +28,7 @@ with open('mon_consumer_ext.config', 'r') as config_file:
 
 print('Configurations loaded!')
 
-print('Connecting to External Kafka cluster at {}...'.format(config['kafka_osm']))
+print('Connecting to External Kafka cluster at {}...'.format(config['kafka_ext']))
 
 data_consumer = KafkaConsumer(config['ext_data_topic'], bootstrap_servers=config['kafka_ext'],
                               value_deserializer=lambda m: json.loads(m.decode('ascii')))
