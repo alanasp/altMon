@@ -14,6 +14,9 @@ def get_net():
 
 
 def get_ping():
-    ping = os.popen('ping 8.8.8.8 -c1')
-    ms = float(ping.readlines()[-1].strip().split('/')[-3])
-    return ms
+    try:
+        ping = os.popen('ping 8.8.8.8 -c1')
+        ms = float(ping.readlines()[-1].strip().split('/')[-3])
+        return ms
+    except:
+        return -1

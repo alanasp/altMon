@@ -139,6 +139,7 @@ class DecisionEngine:
     def get_decision(self):
         if not self.fed_data:
             return None
+        self.fed_data = False
         # keep default period until we collect more data points
         if self.points_observed < 10:
             return None
