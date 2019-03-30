@@ -93,6 +93,9 @@ class DecisionEngine:
         self.latest_val = 0.0
         self.points_observed = 0
 
+        # indicates if any data was fed into the system before requesting another decision
+        self.fed_data = False
+
         self.curr_period = init_period
 
         if lower_threshold is None:
@@ -130,9 +133,12 @@ class DecisionEngine:
             self.ewmv = (1-self.weight)*self.ewmv + self.weight*(value-self.ewma)*(value-prev_ewma)
         self.latest_val = value
         self.points_observed += 1
+        self.fed_data = True
         #print('Value = {} EWMA = {} EWMV = {}'.format(value, self.ewma, self.ewmv))
 
     def get_decision(self):
+        if not self.fed_data:
+            return None
         # keep default period until we collect more data points
         if self.points_observed < 10:
             return None
