@@ -13,7 +13,7 @@ first_admin_received = False
 config = dict()
 config_filename = 'vnf_endpoint.config'
 
-if len(sys.argv) > 0:
+if len(sys.argv) > 1:
     config_filename = 'vnf_endpoint.' + sys.argv[1] + '.config'
 
 # functions called to get current values of metrics
