@@ -3,7 +3,7 @@ import psutil
 import datetime
 import time
 import json
-import os
+import sys
 
 import metrics
 
@@ -11,6 +11,10 @@ import metrics
 # Globals
 first_admin_received = False
 config = dict()
+config_filename = 'vnf_endpoint.config'
+
+if len(sys.argv) > 0:
+    config_filename = 'vnf_endpoint.' + sys.argv[1] + '.config'
 
 # functions called to get current values of metrics
 # should be filled with all values in available in config
@@ -33,7 +37,7 @@ def update_config(current_config, update_msgs):
             print('Message received: {}'.format(msg))
             if msg['vnf_name'] == current_config['vnf_name']:
                 current_config['metrics'].update(msg['metrics'])
-                with open('vnf_endpoint.config', 'w') as config_file:
+                with open(config_filename, 'w') as config_file:
                     json.dump(current_config, config_file, sort_keys=True, indent=2)
                 return
 
@@ -41,7 +45,7 @@ def update_config(current_config, update_msgs):
 print('Loading configurations...')
 
 # load configurations
-with open('vnf_endpoint.config', 'r') as config_file:
+with open(config_filename, 'r') as config_file:
     config = json.load(config_file)
 
 print('Configurations loaded!')
