@@ -3,19 +3,24 @@ import psutil
 import datetime
 import time
 import json
+import os
 
 import metrics
 
+
 # Globals
 first_admin_received = False
+config = dict()
 
 # functions called to get current values of metrics
 # should be filled with all values in available in config
 metric_functions = {
     'CPU': lambda: psutil.cpu_percent(),
     'RAM': lambda: psutil.virtual_memory()[2],
-    'Net': lambda: metrics.get_net()
+    'Net': lambda: metrics.get_net() / config['metrics'][metric]['mon_period'],
+    'ping': lambda: metrics.get_ping()
 }
+
 
 # admin messages expected in JSON format
 # pick most recent message addressed to this VNF and update the respective configurations
@@ -29,7 +34,7 @@ def update_config(current_config, update_msgs):
             if msg['vnf_name'] == current_config['vnf_name']:
                 current_config['metrics'].update(msg['metrics'])
                 with open('vnf_endpoint.config', 'w') as config_file:
-                    json.dump(current_config, config_file, sort_keys=True)
+                    json.dump(current_config, config_file, sort_keys=True, indent=2)
                 return
 
 
@@ -60,6 +65,8 @@ for metric in config['metrics']:
     metric_functions[metric]()
 
 while True:
+
+
     admin_msgs = admin_consumer.poll()
     update_config(config, admin_msgs)
 
