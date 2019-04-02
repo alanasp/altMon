@@ -19,4 +19,4 @@ def get_ping():
         ms = float(ping.readlines()[-1].strip().split('/')[-3])
         return ms
     except:
-        return -1
+        return 1e3
