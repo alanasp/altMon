@@ -15,7 +15,7 @@ stds = list()
 lows = list()
 highs = list()
 
-with open(mon_filename, 'r')  as mon_file:
+with open(mon_filename, 'r') as mon_file:
     for line in mon_file:
         time, val, ewmv, low, high = map(float, line.split(' '))
         print(time, val, ewmv, low, high)
@@ -28,7 +28,7 @@ with open(mon_filename, 'r')  as mon_file:
 all_times = list()
 all_vals = list()
 
-with open(actual_filename, 'r')  as actual_file:
+with open(actual_filename, 'r') as actual_file:
     for line in actual_file:
         time, val = map(float, line.split(' '))
         all_times.append(time)
